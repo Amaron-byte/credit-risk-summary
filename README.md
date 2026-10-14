@@ -6,7 +6,16 @@ PostgreSQL → семантическая модель (YAML) → дашборд
 
 ## Как запустить
 
-Нужны Docker (или локальный PostgreSQL 16 с `psql`) и, для сверки, Python 3 с `pandas` и `pyyaml`.
+Нужны Docker (или локальный PostgreSQL 16 с `psql`) и, для сверки, Python 3 с `pandas` и `pyyaml` (`pip install pandas pyyaml`). `psql` на компьютере для Docker-варианта не нужен: сверка ходит в базу через контейнер.
+
+**Windows (PowerShell или cmd):**
+
+```powershell
+powershell -ExecutionPolicy Bypass -File run.ps1
+python -m http.server -d dashboard 8000    # дашборд: http://localhost:8000
+```
+
+**Linux / macOS / Git Bash:**
 
 ```bash
 ./run.sh                      # поднимает postgres:16 в docker compose и делает всё ниже
@@ -16,7 +25,7 @@ PGHOST=localhost PGUSER=postgres PGDATABASE=risk ./run.sh --local
 python3 -m http.server -d dashboard 8000   # дашборд: http://localhost:8000
 ```
 
-`run.sh` по шагам (каждый можно запустить отдельно из корня репозитория):
+Шаги прогона (каждый можно запустить отдельно из корня репозитория):
 
 | Шаг | Команда | Что делает |
 |---|---|---|

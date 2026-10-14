@@ -1,11 +1,13 @@
 """Независимая сверка: пересчитывает метрики из CSV на pandas (без SQL)
 и сравнивает с reporting.v_metrics / v_breakdown / v_metrics_change.
 
-Запуск (нужен psql в PATH и переменные PGHOST/PGPORT/PGUSER/PGDATABASE):
+Запуск (локальный psql с переменными PG* или PSQL="docker compose exec -T db psql -U postgres -d risk"):
     python3 tests/reconcile.py
 Код выхода 0 — всё сошлось, 1 — есть расхождения.
 """
 import io
+import os
+import shlex
 import subprocess
 import sys
 from pathlib import Path
@@ -14,14 +16,17 @@ from decimal import Decimal, ROUND_HALF_UP
 
 import pandas as pd
 
+# Команда psql: по умолчанию локальный psql; для Docker —
+# PSQL="docker compose exec -T db psql -U postgres -d risk" (так делают run.sh и run.ps1).
+PSQL = shlex.split(os.environ.get("PSQL", "psql"))
 ROOT = Path(__file__).resolve().parents[1]
 TOL_KZT = 0         # суммы считаются в Decimal с тем же округлением, что в Postgres → должны совпасть до копейки
 TOL_SHARE = 1e-9    # допуск по долям
 
 
 def sql(query: str) -> pd.DataFrame:
-    out = subprocess.run(["psql", "-X", "--csv", "-c", query],
-                         check=True, capture_output=True, text=True).stdout
+    out = subprocess.run(PSQL + ["-X", "--csv", "-c", query],
+                         check=True, capture_output=True, text=True, encoding="utf-8").stdout
     return pd.read_csv(io.StringIO(out))
 
 

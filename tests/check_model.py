@@ -1,20 +1,24 @@
 """Проверяет, что семантическая модель соответствует витрине:
 источник существует, каждая колонка есть во вьюхе, типы мер допустимы, имена уникальны.
 
-    python3 tests/check_model.py   (нужны psql, PG* переменные и PyYAML)
+    python3 tests/check_model.py   (нужен PyYAML; psql — как в reconcile.py)
 """
+import os
+import shlex
 import subprocess
 import sys
 from pathlib import Path
 
 import yaml
 
-m = yaml.safe_load((Path(__file__).resolve().parents[1] / "semantic/portfolio.yml").read_text())
+PSQL = shlex.split(os.environ.get("PSQL", "psql"))  # или "docker compose exec -T db psql -U postgres -d risk"
+
+m = yaml.safe_load((Path(__file__).resolve().parents[1] / "semantic/portfolio.yml").read_text(encoding="utf-8"))
 schema, view = m["source"].split(".")
 cols = set(subprocess.run(
-    ["psql", "-X", "-At", "-c",
+    PSQL + ["-X", "-At", "-c",
      f"SELECT column_name FROM information_schema.columns WHERE table_schema='{schema}' AND table_name='{view}'"],
-    check=True, capture_output=True, text=True).stdout.split())
+    check=True, capture_output=True, text=True, encoding="utf-8").stdout.split())
 
 errors = []
 if not cols:

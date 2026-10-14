@@ -1,0 +1,168 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "title": {
+    "text": "10 крупнейших групп связанных заёмщиков, 01.10.2026",
+    "subtitle": "Доля в портфеле; темнее — часть остатка в NPL"
+  },
+  "data": {
+    "url": "data/top_groups.json"
+  },
+  "transform": [
+    {
+      "filter": "datum.report_date == '2026-10-01'"
+    },
+    {
+      "calculate": "datum.principal_kzt/1e9",
+      "as": "bn"
+    },
+    {
+      "calculate": "datum.npl_kzt/1e9",
+      "as": "npl_bn"
+    },
+    {
+      "calculate": "datum.share * datum.npl_kzt / datum.principal_kzt",
+      "as": "npl_share"
+    }
+  ],
+  "width": 520,
+  "height": {
+    "step": 24
+  },
+  "encoding": {
+    "y": {
+      "field": "group_id",
+      "type": "nominal",
+      "sort": {
+        "field": "rank"
+      },
+      "title": null
+    },
+    "tooltip": [
+      {
+        "field": "rank",
+        "title": "Ранг"
+      },
+      {
+        "field": "group_id",
+        "title": "Группа"
+      },
+      {
+        "field": "loans",
+        "title": "Кредитов"
+      },
+      {
+        "field": "bn",
+        "title": "Остаток, млрд ₸",
+        "format": ",.2f"
+      },
+      {
+        "field": "npl_bn",
+        "title": "NPL, млрд ₸",
+        "format": ",.2f"
+      },
+      {
+        "field": "share",
+        "title": "Доля в портфеле",
+        "format": ".2%"
+      }
+    ]
+  },
+  "layer": [
+    {
+      "mark": {
+        "type": "bar",
+        "cornerRadiusEnd": 4,
+        "color": "#9ec5f2",
+        "height": {
+          "band": 0.7
+        }
+      },
+      "encoding": {
+        "x": {
+          "field": "share",
+          "type": "quantitative",
+          "title": "Доля в портфеле",
+          "axis": {
+            "format": ".1%",
+            "tickCount": 5
+          }
+        }
+      }
+    },
+    {
+      "mark": {
+        "type": "bar",
+        "color": "#0e3d75",
+        "height": {
+          "band": 0.7
+        }
+      },
+      "encoding": {
+        "x": {
+          "field": "npl_share",
+          "type": "quantitative"
+        }
+      }
+    },
+    {
+      "mark": {
+        "type": "text",
+        "align": "left",
+        "dx": 4,
+        "fontSize": 11,
+        "color": "#52514e"
+      },
+      "encoding": {
+        "x": {
+          "field": "share",
+          "type": "quantitative"
+        },
+        "text": {
+          "field": "share",
+          "format": ".1%"
+        }
+      }
+    }
+  ],
+  "config": {
+    "font": "Inter, system-ui, sans-serif",
+    "background": null,
+    "view": {
+      "stroke": null
+    },
+    "axis": {
+      "labelColor": "#52514e",
+      "titleColor": "#52514e",
+      "gridColor": "#e7e6e2",
+      "domainColor": "#c9c8c2",
+      "tickColor": "#c9c8c2",
+      "labelFontSize": 11,
+      "titleFontSize": 11,
+      "titleFontWeight": 500
+    },
+    "legend": {
+      "labelColor": "#52514e",
+      "titleColor": "#52514e",
+      "labelFontSize": 11,
+      "titleFontSize": 11
+    },
+    "header": {
+      "labelColor": "#0b0b0b",
+      "titleColor": "#52514e",
+      "labelFontSize": 12,
+      "labelFontWeight": 600
+    },
+    "title": {
+      "color": "#0b0b0b",
+      "subtitleColor": "#52514e",
+      "fontSize": 14,
+      "fontWeight": 600,
+      "anchor": "start",
+      "subtitleFontSize": 12,
+      "offset": 10
+    },
+    "text": {
+      "color": "#0b0b0b"
+    }
+  }
+}

@@ -1,0 +1,8 @@
+[{"report_date":"2026-09-01","dpd_bucket":"0","loans":1633,"principal_kzt":400630061381.90,"provisions_kzt":15327754263.61}, 
+ {"report_date":"2026-09-01","dpd_bucket":"1–30","loans":126,"principal_kzt":37498662243.92,"provisions_kzt":2742920453.34}, 
+ {"report_date":"2026-09-01","dpd_bucket":"31–90","loans":101,"principal_kzt":28926670462.43,"provisions_kzt":2892667046.24}, 
+ {"report_date":"2026-09-01","dpd_bucket":"90+","loans":115,"principal_kzt":31097834606.35,"provisions_kzt":15548917303.22}, 
+ {"report_date":"2026-10-01","dpd_bucket":"0","loans":1707,"principal_kzt":413686595709.92,"provisions_kzt":17125066632.22}, 
+ {"report_date":"2026-10-01","dpd_bucket":"1–30","loans":73,"principal_kzt":18224194865.80,"provisions_kzt":297383131.60}, 
+ {"report_date":"2026-10-01","dpd_bucket":"31–90","loans":105,"principal_kzt":28410129762.68,"provisions_kzt":2902021396.68}, 
+ {"report_date":"2026-10-01","dpd_bucket":"90+","loans":84,"principal_kzt":18678830906.50,"provisions_kzt":9339415453.28}]

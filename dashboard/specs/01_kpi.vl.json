@@ -1,0 +1,136 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "title": {
+    "text": "Ключевые метрики на 01.10.2026",
+    "subtitle": "Изменение к 01.09.2026; доли — в п.п., суммы — в %"
+  },
+  "data": {
+    "url": "data/metrics.json"
+  },
+  "transform": [
+    {
+      "filter": "datum.prev_value != null"
+    },
+    {
+      "calculate": "datum.unit=='kzt' ? format(datum.value/1e9, ',.1f')+' млрд ₸' : datum.unit=='share' ? format(datum.value, '.1%') : format(datum.value, ',d')",
+      "as": "value_text"
+    },
+    {
+      "calculate": "datum.unit=='kzt' ? format(datum.prev_value/1e9, ',.1f')+' млрд' : datum.unit=='share' ? format(datum.prev_value, '.1%') : format(datum.prev_value, ',d')",
+      "as": "prev_text"
+    },
+    {
+      "calculate": "datum.unit=='share' ? (datum.delta_pp>=0?'+':'')+format(datum.delta_pp, '.2f')+' п.п.' : (datum.delta_pct>=0?'+':'')+format(datum.delta_pct, '.1f')+'%'",
+      "as": "delta_text"
+    },
+    {
+      "calculate": "'01.09: ' + datum.prev_text + '   Δ ' + datum.delta_text",
+      "as": "sub_text"
+    }
+  ],
+  "facet": {
+    "field": "label",
+    "type": "nominal",
+    "sort": {
+      "field": "sort_order"
+    },
+    "title": null,
+    "header": {
+      "labelAlign": "left",
+      "labelAnchor": "start",
+      "labelColor": "#52514e",
+      "labelFontWeight": 500,
+      "labelFontSize": 12
+    }
+  },
+  "columns": 4,
+  "spacing": {
+    "column": 16,
+    "row": 12
+  },
+  "spec": {
+    "width": 190,
+    "height": 58,
+    "layer": [
+      {
+        "mark": {
+          "type": "text",
+          "align": "left",
+          "baseline": "top",
+          "fontSize": 24,
+          "fontWeight": 600,
+          "x": 0,
+          "y": 4
+        },
+        "encoding": {
+          "text": {
+            "field": "value_text"
+          }
+        }
+      },
+      {
+        "mark": {
+          "type": "text",
+          "align": "left",
+          "baseline": "top",
+          "fontSize": 12,
+          "x": 0,
+          "y": 40,
+          "color": "#52514e"
+        },
+        "encoding": {
+          "text": {
+            "field": "sub_text"
+          }
+        }
+      }
+    ]
+  },
+  "resolve": {
+    "scale": {
+      "x": "independent",
+      "y": "independent"
+    }
+  },
+  "config": {
+    "font": "Inter, system-ui, sans-serif",
+    "background": null,
+    "view": {
+      "stroke": null
+    },
+    "axis": {
+      "labelColor": "#52514e",
+      "titleColor": "#52514e",
+      "gridColor": "#e7e6e2",
+      "domainColor": "#c9c8c2",
+      "tickColor": "#c9c8c2",
+      "labelFontSize": 11,
+      "titleFontSize": 11,
+      "titleFontWeight": 500
+    },
+    "legend": {
+      "labelColor": "#52514e",
+      "titleColor": "#52514e",
+      "labelFontSize": 11,
+      "titleFontSize": 11
+    },
+    "header": {
+      "labelColor": "#0b0b0b",
+      "titleColor": "#52514e",
+      "labelFontSize": 12,
+      "labelFontWeight": 600
+    },
+    "title": {
+      "color": "#0b0b0b",
+      "subtitleColor": "#52514e",
+      "fontSize": 14,
+      "fontWeight": 600,
+      "anchor": "start",
+      "subtitleFontSize": 12,
+      "offset": 10
+    },
+    "text": {
+      "color": "#0b0b0b"
+    }
+  }
+}

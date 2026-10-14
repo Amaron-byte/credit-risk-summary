@@ -1,0 +1,404 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "title": {
+    "text": "Разрез по программам",
+    "subtitle": "Портфель на 01.10 и изменение PAR30 / NPL с 01.09"
+  },
+  "data": {
+    "url": "data/breakdown.json"
+  },
+  "transform": [
+    {
+      "filter": {
+        "field": "dimension",
+        "equal": "program"
+      }
+    },
+    {
+      "calculate": "slice(datum.report_date,8,10)+'.'+slice(datum.report_date,5,7)+'.'+slice(datum.report_date,0,4)",
+      "as": "date_label"
+    },
+    {
+      "joinaggregate": [
+        {
+          "op": "max",
+          "field": "portfolio_kzt",
+          "as": "portfolio_kzt_max"
+        }
+      ],
+      "groupby": [
+        "dim_value"
+      ]
+    },
+    {
+      "calculate": "datum.portfolio_kzt/1e9",
+      "as": "bn"
+    }
+  ],
+  "hconcat": [
+    {
+      "width": 200,
+      "height": {
+        "step": 30
+      },
+      "title": {
+        "text": "Портфель 01.10, млрд ₸",
+        "fontSize": 12,
+        "fontWeight": 500,
+        "color": "#52514e"
+      },
+      "transform": [
+        {
+          "filter": "datum.date_label == '01.10.2026'"
+        }
+      ],
+      "encoding": {
+        "y": {
+          "field": "dim_value",
+          "type": "nominal",
+          "title": null,
+          "sort": {
+            "op": "max",
+            "field": "portfolio_kzt_max",
+            "order": "descending"
+          }
+        },
+        "x": {
+          "field": "bn",
+          "type": "quantitative",
+          "title": null,
+          "axis": {
+            "format": ",.0f",
+            "tickCount": 4
+          }
+        }
+      },
+      "layer": [
+        {
+          "mark": {
+            "type": "bar",
+            "cornerRadiusEnd": 4,
+            "color": "#2a78d6",
+            "height": {
+              "band": 0.6
+            }
+          },
+          "encoding": {
+            "tooltip": [
+              {
+                "field": "dim_value",
+                "title": "Программа"
+              },
+              {
+                "field": "bn",
+                "title": "Портфель, млрд ₸",
+                "format": ",.1f"
+              },
+              {
+                "field": "portfolio_share",
+                "title": "Доля",
+                "format": ".1%"
+              },
+              {
+                "field": "loans",
+                "title": "Кредитов",
+                "format": ",d"
+              }
+            ]
+          }
+        },
+        {
+          "mark": {
+            "type": "text",
+            "align": "left",
+            "dx": 4,
+            "fontSize": 11,
+            "color": "#52514e"
+          },
+          "encoding": {
+            "text": {
+              "field": "portfolio_share",
+              "format": ".0%"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "width": 230,
+      "height": {
+        "step": 30
+      },
+      "title": {
+        "text": "PAR30",
+        "fontSize": 12,
+        "fontWeight": 500,
+        "color": "#52514e"
+      },
+      "encoding": {
+        "y": {
+          "field": "dim_value",
+          "type": "nominal",
+          "title": null,
+          "sort": {
+            "op": "max",
+            "field": "portfolio_kzt_max",
+            "order": "descending"
+          },
+          "axis": {
+            "labels": false,
+            "ticks": false,
+            "domain": false,
+            "title": null
+          }
+        }
+      },
+      "layer": [
+        {
+          "mark": {
+            "type": "rule",
+            "strokeWidth": 2,
+            "color": "#c9c8c2"
+          },
+          "transform": [
+            {
+              "calculate": "datum.report_date == '2026-09-01' ? 'prev' : 'curr'",
+              "as": "date_key"
+            },
+            {
+              "pivot": "date_key",
+              "value": "par30",
+              "groupby": [
+                "dim_value",
+                "portfolio_kzt_max"
+              ]
+            }
+          ],
+          "encoding": {
+            "x": {
+              "field": "prev",
+              "type": "quantitative"
+            },
+            "x2": {
+              "field": "curr"
+            }
+          }
+        },
+        {
+          "mark": {
+            "type": "point",
+            "filled": true,
+            "size": 90,
+            "stroke": "white",
+            "strokeWidth": 2,
+            "opacity": 1
+          },
+          "encoding": {
+            "x": {
+              "field": "par30",
+              "type": "quantitative",
+              "title": null,
+              "axis": {
+                "format": ".0%",
+                "tickCount": 4
+              }
+            },
+            "color": {
+              "field": "date_label",
+              "type": "nominal",
+              "title": "Дата среза",
+              "scale": {
+                "domain": [
+                  "01.09.2026",
+                  "01.10.2026"
+                ],
+                "range": [
+                  "#a3a29c",
+                  "#2a78d6"
+                ]
+              },
+              "legend": {
+                "orient": "top",
+                "direction": "horizontal"
+              }
+            },
+            "tooltip": [
+              {
+                "field": "dim_value",
+                "title": "Программа"
+              },
+              {
+                "field": "date_label",
+                "title": "Дата"
+              },
+              {
+                "field": "par30",
+                "title": "PAR30",
+                "format": ".2%"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "width": 230,
+      "height": {
+        "step": 30
+      },
+      "title": {
+        "text": "NPL",
+        "fontSize": 12,
+        "fontWeight": 500,
+        "color": "#52514e"
+      },
+      "encoding": {
+        "y": {
+          "field": "dim_value",
+          "type": "nominal",
+          "title": null,
+          "sort": {
+            "op": "max",
+            "field": "portfolio_kzt_max",
+            "order": "descending"
+          },
+          "axis": {
+            "labels": false,
+            "ticks": false,
+            "domain": false,
+            "title": null
+          }
+        }
+      },
+      "layer": [
+        {
+          "mark": {
+            "type": "rule",
+            "strokeWidth": 2,
+            "color": "#c9c8c2"
+          },
+          "transform": [
+            {
+              "calculate": "datum.report_date == '2026-09-01' ? 'prev' : 'curr'",
+              "as": "date_key"
+            },
+            {
+              "pivot": "date_key",
+              "value": "npl",
+              "groupby": [
+                "dim_value",
+                "portfolio_kzt_max"
+              ]
+            }
+          ],
+          "encoding": {
+            "x": {
+              "field": "prev",
+              "type": "quantitative"
+            },
+            "x2": {
+              "field": "curr"
+            }
+          }
+        },
+        {
+          "mark": {
+            "type": "point",
+            "filled": true,
+            "size": 90,
+            "stroke": "white",
+            "strokeWidth": 2,
+            "opacity": 1
+          },
+          "encoding": {
+            "x": {
+              "field": "npl",
+              "type": "quantitative",
+              "title": null,
+              "axis": {
+                "format": ".0%",
+                "tickCount": 4
+              }
+            },
+            "color": {
+              "field": "date_label",
+              "type": "nominal",
+              "title": "Дата среза",
+              "scale": {
+                "domain": [
+                  "01.09.2026",
+                  "01.10.2026"
+                ],
+                "range": [
+                  "#a3a29c",
+                  "#2a78d6"
+                ]
+              },
+              "legend": {
+                "orient": "top",
+                "direction": "horizontal"
+              }
+            },
+            "tooltip": [
+              {
+                "field": "dim_value",
+                "title": "Программа"
+              },
+              {
+                "field": "date_label",
+                "title": "Дата"
+              },
+              {
+                "field": "npl",
+                "title": "NPL",
+                "format": ".2%"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "spacing": 24,
+  "config": {
+    "font": "Inter, system-ui, sans-serif",
+    "background": null,
+    "view": {
+      "stroke": null
+    },
+    "axis": {
+      "labelColor": "#52514e",
+      "titleColor": "#52514e",
+      "gridColor": "#e7e6e2",
+      "domainColor": "#c9c8c2",
+      "tickColor": "#c9c8c2",
+      "labelFontSize": 11,
+      "titleFontSize": 11,
+      "titleFontWeight": 500
+    },
+    "legend": {
+      "labelColor": "#52514e",
+      "titleColor": "#52514e",
+      "labelFontSize": 11,
+      "titleFontSize": 11
+    },
+    "header": {
+      "labelColor": "#0b0b0b",
+      "titleColor": "#52514e",
+      "labelFontSize": 12,
+      "labelFontWeight": 600
+    },
+    "title": {
+      "color": "#0b0b0b",
+      "subtitleColor": "#52514e",
+      "fontSize": 14,
+      "fontWeight": 600,
+      "anchor": "start",
+      "subtitleFontSize": 12,
+      "offset": 10
+    },
+    "text": {
+      "color": "#0b0b0b"
+    }
+  }
+}

@@ -1,0 +1,11 @@
+[{"bucket_from":"0","bucket_to":"0","loans":1560,"principal_kzt_to":367535513634.12}, 
+ {"bucket_from":"0","bucket_to":"1–30","loans":73,"principal_kzt_to":18224194865.80}, 
+ {"bucket_from":"1–30","bucket_to":"0","loans":45,"principal_kzt_to":11653068162.61}, 
+ {"bucket_from":"1–30","bucket_to":"31–90","loans":81,"principal_kzt_to":24532497401.55}, 
+ {"bucket_from":"31–90","bucket_to":"0","loans":49,"principal_kzt_to":19601458701.84}, 
+ {"bucket_from":"31–90","bucket_to":"31–90","loans":24,"principal_kzt_to":3877632361.13}, 
+ {"bucket_from":"31–90","bucket_to":"90+","loans":28,"principal_kzt_to":4519219198.56}, 
+ {"bucket_from":"90+","bucket_to":"0","loans":53,"principal_kzt_to":14896555211.35}, 
+ {"bucket_from":"90+","bucket_to":"90+","loans":56,"principal_kzt_to":14159611707.94}, 
+ {"bucket_from":"90+","bucket_to":"списан","loans":6,"principal_kzt_to":1022036910.94}, 
+ {"bucket_from":"списан","bucket_to":"списан","loans":25,"principal_kzt_to":6245831437.05}]

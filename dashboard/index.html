@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Риск-сводка портфеля</title>
+<script src="https://cdn.jsdelivr.net/npm/vega@5.33.1/build/vega.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vega-lite@5.23.0/build/vega-lite.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vega-embed@6.29.0/build/vega-embed.min.js"></script>
+<style>
+  :root {
+    --surface-0: #f4f3f0; --surface-1: #fcfcfb; --border: #e7e6e2;
+    --text-primary: #0b0b0b; --text-secondary: #52514e; --text-muted: #8a8984;
+    --fixed: #1baf7a; --warn: #c98500; --error: #e34948;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --surface-0: #121211; --surface-1: #1a1a19; --border: #2e2e2c;
+      --text-primary: #f0efec; --text-secondary: #c3c2b7; --text-muted: #8f8e88;
+    }
+  }
+  :root[data-theme="dark"] {
+    --surface-0: #121211; --surface-1: #1a1a19; --border: #2e2e2c;
+    --text-primary: #f0efec; --text-secondary: #c3c2b7; --text-muted: #8f8e88;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--surface-0); color: var(--text-primary);
+         font: 14px/1.45 Inter, system-ui, -apple-system, "Segoe UI", sans-serif; }
+  header { padding: 28px 32px 8px; max-width: 1280px; margin: 0 auto; }
+  h1 { font-size: 22px; margin: 0 0 4px; font-weight: 650; }
+  header p { margin: 0; color: var(--text-secondary); }
+  main { display: grid; grid-template-columns: repeat(12, 1fr); gap: 16px;
+         padding: 16px 32px 40px; max-width: 1280px; margin: 0 auto; }
+  .card { background: var(--surface-1); border: 1px solid var(--border); border-radius: 10px;
+          padding: 18px 20px; overflow-x: auto; min-width: 0; }
+  .span-12 { grid-column: span 12; } .span-7 { grid-column: span 7; } .span-5 { grid-column: span 5; }
+  @media (max-width: 1000px) { .span-7, .span-5 { grid-column: span 12; } main, header { padding-left: 16px; padding-right: 16px; } }
+  table { border-collapse: collapse; width: 100%; font-size: 13px; }
+  th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  th { color: var(--text-secondary); font-weight: 500; }
+  td.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .tag { font-size: 11px; padding: 1px 7px; border-radius: 99px; border: 1px solid currentColor; white-space: nowrap; }
+  .tag.fixed { color: var(--fixed); } .tag.warn { color: var(--warn); } .tag.error { color: var(--error); }
+  .tag.info { color: var(--text-muted); }
+  h2 { font-size: 14px; margin: 0 0 4px; font-weight: 600; }
+  .sub { color: var(--text-secondary); font-size: 12px; margin: 0 0 12px; }
+  .err { color: var(--error); white-space: pre-wrap; }
+  footer { color: var(--text-muted); font-size: 12px; text-align: center; padding-bottom: 24px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Риск-сводка кредитного портфеля</h1>
+  <p>Синтетический портфель · срезы 01.09.2026 и 01.10.2026 · суммы в тенге по курсу на дату среза · без списанных кредитов</p>
+</header>
+<main>
+  <section class="card span-12" id="v01_kpi"></section>
+  <section class="card span-12" id="v02_ratios_dynamics"></section>
+  <section class="card span-7"  id="v03_dpd_buckets"></section>
+  <section class="card span-5"  id="v04_migration"></section>
+  <section class="card span-12" id="v05_by_sector"></section>
+  <section class="card span-12" id="v06_by_program"></section>
+  <section class="card span-7"  id="v07_top_groups"></section>
+  <section class="card span-5"  id="dq">
+    <h2>Качество данных</h2>
+    <p class="sub">reporting.v_dq_checks — что найдено в выгрузке и как обработано</p>
+    <table><thead><tr><th>Проверка</th><th class="num">Значение</th><th></th></tr></thead><tbody></tbody></table>
+  </section>
+</main>
+<footer>Данные: dashboard/data/*.json, выгружены из вьюх reporting.* скриптом scripts/export_dashboard_data.sh · спеки: dashboard/specs/*.vl.json</footer>
+
+<script>
+const SPECS = ["01_kpi", "02_ratios_dynamics", "03_dpd_buckets", "04_migration",
+               "05_by_sector", "06_by_program", "07_top_groups"];
+
+// Русская локаль чисел: пробел — разделитель тысяч, запятая — десятичный.
+const FORMAT_LOCALE = { decimal: ",", thousands: " ", grouping: [3], currency: ["", " ₸"], percent: "%" };
+
+const isDark = () => {
+  const t = document.documentElement.dataset.theme;
+  return t ? t === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+};
+
+// Тёмная тема: свои ступени текста и сетки поверх config из спека.
+const DARK = {
+  axis: { labelColor: "#c3c2b7", titleColor: "#c3c2b7", gridColor: "#2e2e2c", domainColor: "#4a4a47", tickColor: "#4a4a47" },
+  legend: { labelColor: "#c3c2b7", titleColor: "#c3c2b7" },
+  header: { labelColor: "#f0efec", titleColor: "#c3c2b7" },
+  title: { color: "#f0efec", subtitleColor: "#c3c2b7" },
+  text: { color: "#f0efec" }
+};
+
+function deepMerge(a, b) {
+  for (const [k, v] of Object.entries(b)) {
+    a[k] = v && typeof v === "object" && !Array.isArray(v) ? deepMerge(a[k] || {}, v) : v;
+  }
+  return a;
+}
+
+// В тёмной теме цвета текстов из спеков переводим в светлые ступени
+// (кроме подписей в ячейках теплокарты — они стоят на светлой заливке).
+function recolor(node) {
+  if (Array.isArray(node)) return node.map(recolor);
+  if (node && typeof node === "object") {
+    for (const k of Object.keys(node)) {
+      if (k === "color" && node[k] === "#52514e") node[k] = "#c3c2b7";
+      else if (k === "color" && node[k] === "#0b0b0b") node[k] = "#f0efec";
+      else if (k === "labelColor" && node[k] === "#52514e") node[k] = "#c3c2b7";
+      else if ((k === "stroke") && node[k] === "white") node[k] = "#1a1a19";
+      else node[k] = recolor(node[k]);
+    }
+  }
+  return node;
+}
+
+async function render() {
+  const dark = isDark();
+  await Promise.all(SPECS.map(async (name) => {
+    const el = document.getElementById("v" + name);
+    try {
+      let spec = await (await fetch(`specs/${name}.vl.json`)).json();
+      if (dark) { spec = recolor(spec); spec.config = deepMerge(spec.config || {}, DARK); }
+      await vegaEmbed(el, spec, { actions: { export: true, source: true, compiled: false, editor: true },
+                                  formatLocale: FORMAT_LOCALE, renderer: "svg" });
+    } catch (e) {
+      el.innerHTML = `<p class="err">Не удалось отрисовать ${name}: ${e.message}\nОткройте страницу через HTTP-сервер (см. README).</p>`;
+    }
+  }));
+
+  const fmt = new Intl.NumberFormat("ru-RU", { maximumFractionDigits: 0 });
+  const rows = await (await fetch("data/dq_checks.json")).json();
+  const label = { fixed: "исправлено", warn: "внимание", error: "ошибка", info: "справка" };
+  document.querySelector("#dq tbody").innerHTML = rows.map(r => {
+    const clean = (r.severity === "error" || r.severity === "warn") && Number(r.value) === 0;
+    const sev = clean ? "info" : r.severity;
+    const tag = clean ? "ок" : label[sev];
+    return `<tr><td>${r.description}</td><td class="num">${fmt.format(r.value)}</td>
+            <td><span class="tag ${sev}">${tag}</span></td></tr>`;
+  }).join("");
+  document.body.dataset.rendered = "1";
+}
+render();
+</script>
+</body>
+</html>

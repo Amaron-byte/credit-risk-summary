@@ -1,0 +1,141 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "title": {
+    "text": "Портфель по корзинам просрочки",
+    "subtitle": "млрд ₸; провизии по ставкам 1% / 10% / 50%"
+  },
+  "data": {
+    "url": "data/dpd_buckets.json"
+  },
+  "transform": [
+    {
+      "calculate": "slice(datum.report_date,8,10)+'.'+slice(datum.report_date,5,7)+'.'+slice(datum.report_date,0,4)",
+      "as": "date_label"
+    },
+    {
+      "calculate": "datum.principal_kzt/1e9",
+      "as": "bn"
+    }
+  ],
+  "width": 520,
+  "height": {
+    "step": 34
+  },
+  "mark": {
+    "type": "bar",
+    "cornerRadiusEnd": 4
+  },
+  "encoding": {
+    "y": {
+      "field": "dpd_bucket",
+      "type": "ordinal",
+      "sort": [
+        "0",
+        "1–30",
+        "31–90",
+        "90+"
+      ],
+      "title": "Просрочка, дней"
+    },
+    "yOffset": {
+      "field": "date_label",
+      "sort": [
+        "01.09.2026",
+        "01.10.2026"
+      ]
+    },
+    "x": {
+      "field": "bn",
+      "type": "quantitative",
+      "title": "млрд ₸",
+      "axis": {
+        "format": ",.0f"
+      }
+    },
+    "color": {
+      "field": "date_label",
+      "type": "nominal",
+      "title": "Дата среза",
+      "scale": {
+        "domain": [
+          "01.09.2026",
+          "01.10.2026"
+        ],
+        "range": [
+          "#a3a29c",
+          "#2a78d6"
+        ]
+      },
+      "legend": {
+        "orient": "top",
+        "direction": "horizontal"
+      }
+    },
+    "tooltip": [
+      {
+        "field": "date_label",
+        "title": "Дата"
+      },
+      {
+        "field": "dpd_bucket",
+        "title": "Корзина"
+      },
+      {
+        "field": "loans",
+        "title": "Кредитов",
+        "format": ",d"
+      },
+      {
+        "field": "bn",
+        "title": "Остаток, млрд ₸",
+        "format": ",.2f"
+      },
+      {
+        "field": "provisions_kzt",
+        "title": "Провизии, ₸",
+        "format": ",.0f"
+      }
+    ]
+  },
+  "config": {
+    "font": "Inter, system-ui, sans-serif",
+    "background": null,
+    "view": {
+      "stroke": null
+    },
+    "axis": {
+      "labelColor": "#52514e",
+      "titleColor": "#52514e",
+      "gridColor": "#e7e6e2",
+      "domainColor": "#c9c8c2",
+      "tickColor": "#c9c8c2",
+      "labelFontSize": 11,
+      "titleFontSize": 11,
+      "titleFontWeight": 500
+    },
+    "legend": {
+      "labelColor": "#52514e",
+      "titleColor": "#52514e",
+      "labelFontSize": 11,
+      "titleFontSize": 11
+    },
+    "header": {
+      "labelColor": "#0b0b0b",
+      "titleColor": "#52514e",
+      "labelFontSize": 12,
+      "labelFontWeight": 600
+    },
+    "title": {
+      "color": "#0b0b0b",
+      "subtitleColor": "#52514e",
+      "fontSize": 14,
+      "fontWeight": 600,
+      "anchor": "start",
+      "subtitleFontSize": 12,
+      "offset": 10
+    },
+    "text": {
+      "color": "#0b0b0b"
+    }
+  }
+}

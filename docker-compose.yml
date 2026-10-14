@@ -1,0 +1,15 @@
+services:
+  db:
+    image: postgres:16
+    container_name: risk-pg
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: risk
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./:/repo:ro          # SQL читает data/*.csv по относительным путям из /repo
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d risk"]
+      interval: 2s
+      retries: 20

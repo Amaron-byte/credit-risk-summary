@@ -1,0 +1,179 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "title": {
+    "text": "Динамика риск-метрик",
+    "subtitle": "01.09 → 01.10.2026; покрытие — провизии / NPL, остальное — доля портфеля"
+  },
+  "data": {
+    "url": "data/metrics.json"
+  },
+  "transform": [
+    {
+      "filter": {
+        "field": "unit",
+        "equal": "share"
+      }
+    },
+    {
+      "calculate": "slice(datum.report_date,8,10)+'.'+slice(datum.report_date,5,7)+'.'+slice(datum.report_date,0,4)",
+      "as": "date_label"
+    },
+    {
+      "calculate": "format(datum.value, '.1%')",
+      "as": "value_text"
+    }
+  ],
+  "facet": {
+    "field": "label",
+    "type": "nominal",
+    "sort": {
+      "field": "sort_order"
+    },
+    "title": null
+  },
+  "columns": 5,
+  "spacing": 18,
+  "spec": {
+    "width": 120,
+    "height": 150,
+    "encoding": {
+      "x": {
+        "field": "date_label",
+        "type": "ordinal",
+        "title": null,
+        "axis": {
+          "labelAngle": 0,
+          "labelExpr": "slice(datum.label,0,5)"
+        },
+        "scale": {
+          "padding": 0.4
+        }
+      },
+      "y": {
+        "field": "value",
+        "type": "quantitative",
+        "title": null,
+        "axis": {
+          "format": ".0%",
+          "tickCount": 4
+        },
+        "scale": {
+          "zero": true
+        }
+      }
+    },
+    "layer": [
+      {
+        "mark": {
+          "type": "line",
+          "strokeWidth": 2,
+          "color": "#c9c8c2"
+        }
+      },
+      {
+        "mark": {
+          "type": "point",
+          "filled": true,
+          "size": 90,
+          "stroke": "white",
+          "strokeWidth": 2
+        },
+        "encoding": {
+          "color": {
+            "field": "date_label",
+            "type": "nominal",
+            "title": "Дата среза",
+            "scale": {
+              "domain": [
+                "01.09.2026",
+                "01.10.2026"
+              ],
+              "range": [
+                "#a3a29c",
+                "#2a78d6"
+              ]
+            },
+            "legend": {
+              "orient": "top",
+              "direction": "horizontal"
+            }
+          },
+          "tooltip": [
+            {
+              "field": "label",
+              "title": "Метрика"
+            },
+            {
+              "field": "date_label",
+              "title": "Дата"
+            },
+            {
+              "field": "value",
+              "format": ".2%",
+              "title": "Значение"
+            }
+          ]
+        }
+      },
+      {
+        "mark": {
+          "type": "text",
+          "dy": -12,
+          "fontSize": 11,
+          "fontWeight": 600
+        },
+        "encoding": {
+          "text": {
+            "field": "value_text"
+          }
+        }
+      }
+    ]
+  },
+  "resolve": {
+    "scale": {
+      "y": "independent"
+    }
+  },
+  "config": {
+    "font": "Inter, system-ui, sans-serif",
+    "background": null,
+    "view": {
+      "stroke": null
+    },
+    "axis": {
+      "labelColor": "#52514e",
+      "titleColor": "#52514e",
+      "gridColor": "#e7e6e2",
+      "domainColor": "#c9c8c2",
+      "tickColor": "#c9c8c2",
+      "labelFontSize": 11,
+      "titleFontSize": 11,
+      "titleFontWeight": 500
+    },
+    "legend": {
+      "labelColor": "#52514e",
+      "titleColor": "#52514e",
+      "labelFontSize": 11,
+      "titleFontSize": 11
+    },
+    "header": {
+      "labelColor": "#0b0b0b",
+      "titleColor": "#52514e",
+      "labelFontSize": 12,
+      "labelFontWeight": 600
+    },
+    "title": {
+      "color": "#0b0b0b",
+      "subtitleColor": "#52514e",
+      "fontSize": 14,
+      "fontWeight": 600,
+      "anchor": "start",
+      "subtitleFontSize": 12,
+      "offset": 10
+    },
+    "text": {
+      "color": "#0b0b0b"
+    }
+  }
+}

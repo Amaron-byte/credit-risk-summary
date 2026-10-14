@@ -1,0 +1,148 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "title": {
+    "text": "Миграция кредитов 01.09 → 01.10",
+    "subtitle": "Число кредитов; остаток — на 01.10"
+  },
+  "data": {
+    "url": "data/migration.json"
+  },
+  "width": 300,
+  "height": 240,
+  "encoding": {
+    "x": {
+      "field": "bucket_to",
+      "type": "ordinal",
+      "sort": [
+        "0",
+        "1–30",
+        "31–90",
+        "90+",
+        "списан"
+      ],
+      "title": "Корзина на 01.10",
+      "axis": {
+        "labelAngle": 0,
+        "orient": "top"
+      }
+    },
+    "y": {
+      "field": "bucket_from",
+      "type": "ordinal",
+      "sort": [
+        "0",
+        "1–30",
+        "31–90",
+        "90+",
+        "списан"
+      ],
+      "title": "Корзина на 01.09"
+    }
+  },
+  "layer": [
+    {
+      "mark": {
+        "type": "rect",
+        "cornerRadius": 3,
+        "stroke": "white",
+        "strokeWidth": 2
+      },
+      "encoding": {
+        "color": {
+          "field": "loans",
+          "type": "quantitative",
+          "title": "Кредитов",
+          "scale": {
+            "type": "log",
+            "range": [
+              "#dceafb",
+              "#0e3d75"
+            ]
+          },
+          "legend": null
+        },
+        "tooltip": [
+          {
+            "field": "bucket_from",
+            "title": "С"
+          },
+          {
+            "field": "bucket_to",
+            "title": "На"
+          },
+          {
+            "field": "loans",
+            "title": "Кредитов",
+            "format": ",d"
+          },
+          {
+            "field": "principal_kzt_to",
+            "title": "Остаток на 01.10, ₸",
+            "format": ",.0f"
+          }
+        ]
+      }
+    },
+    {
+      "mark": {
+        "type": "text",
+        "fontSize": 12,
+        "fontWeight": 600
+      },
+      "encoding": {
+        "text": {
+          "field": "loans",
+          "format": ",d"
+        },
+        "color": {
+          "condition": {
+            "test": "datum.loans > 60",
+            "value": "white"
+          },
+          "value": "#0b0b0b"
+        }
+      }
+    }
+  ],
+  "config": {
+    "font": "Inter, system-ui, sans-serif",
+    "background": null,
+    "view": {
+      "stroke": null
+    },
+    "axis": {
+      "labelColor": "#52514e",
+      "titleColor": "#52514e",
+      "gridColor": "#e7e6e2",
+      "domainColor": "#c9c8c2",
+      "tickColor": "#c9c8c2",
+      "labelFontSize": 11,
+      "titleFontSize": 11,
+      "titleFontWeight": 500
+    },
+    "legend": {
+      "labelColor": "#52514e",
+      "titleColor": "#52514e",
+      "labelFontSize": 11,
+      "titleFontSize": 11
+    },
+    "header": {
+      "labelColor": "#0b0b0b",
+      "titleColor": "#52514e",
+      "labelFontSize": 12,
+      "labelFontWeight": 600
+    },
+    "title": {
+      "color": "#0b0b0b",
+      "subtitleColor": "#52514e",
+      "fontSize": 14,
+      "fontWeight": 600,
+      "anchor": "start",
+      "subtitleFontSize": 12,
+      "offset": 10
+    },
+    "text": {
+      "color": "#0b0b0b"
+    }
+  }
+}

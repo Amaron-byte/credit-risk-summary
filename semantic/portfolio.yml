@@ -1,0 +1,133 @@
+# Семантическая модель кредитного портфеля.
+# Источник — очищенная витрина: без дублей, суммы в тенге по курсу на дату среза,
+# списанные кредиты (включая списанные на прошлом срезе) исключены.
+#
+# Доли (PAR30, PAR90, NPL, покрытие) — это отношение сумм, а не avg по строкам:
+#   PAR30 = par30_kzt / portfolio_kzt,  PAR90 = par90_kzt / portfolio_kzt,
+#   NPL   = npl_kzt / portfolio_kzt,    провизии/портфель = provisions_kzt / portfolio_kzt.
+# Поэтому в модели есть суммовые меры для числителя и знаменателя. avg по флагам
+# is_par30/is_npl дал бы долю по числу кредитов, а не по сумме, — таких мер намеренно нет.
+# Концентрация топ-10 групп требует ранжирования и считается во вьюхе reporting.v_metrics.
+
+model: credit_portfolio
+label: Кредитный портфель (без списанных)
+source: reporting.v_portfolio
+grain: [report_date, loan_id]
+
+dimensions:
+  - name: report_date
+    column: report_date
+    type: date
+    label: Дата среза
+  - name: loan_id
+    column: loan_id
+    type: string
+    label: Кредит
+  - name: borrower_id
+    column: borrower_id
+    type: string
+    label: Заёмщик
+  - name: group_id
+    column: group_id
+    type: string
+    label: Группа связанных заёмщиков
+  - name: sector
+    column: sector
+    type: string
+    label: Отрасль
+  - name: program
+    column: program
+    type: string
+    label: Программа
+  - name: currency
+    column: currency
+    type: string
+    label: Валюта кредита
+  - name: dpd_bucket
+    column: dpd_bucket
+    type: string
+    label: Корзина просрочки (0 / 1–30 / 31–90 / 90+)
+  - name: provision_category
+    column: provision_category
+    type: string
+    label: Категория провизий
+  - name: is_par30
+    column: is_par30
+    type: boolean
+    label: Просрочка > 30 дней
+  - name: is_par90
+    column: is_par90
+    type: boolean
+    label: Просрочка > 90 дней
+  - name: is_npl
+    column: is_npl
+    type: boolean
+    label: NPL (просрочка > 90 или реструктуризация)
+  - name: restructured
+    column: restructured
+    type: number
+    label: Реструктуризирован (1/0)
+  - name: issue_date
+    column: issue_date
+    type: date
+    label: Дата выдачи
+  - name: maturity_date
+    column: maturity_date
+    type: date
+    label: Дата погашения
+  - name: is_past_maturity
+    column: is_past_maturity
+    type: boolean
+    label: Срок погашения истёк
+
+measures:
+  - name: portfolio_kzt
+    column: principal_kzt
+    type: sum
+    format: "#,##0 ₸"
+    label: Портфель, ₸
+  - name: principal_original
+    column: principal_outstanding
+    type: sum
+    format: "#,##0.00"
+    label: Остаток в валюте кредита (суммировать только в разрезе currency)
+  - name: par30_kzt
+    column: par30_kzt
+    type: sum
+    format: "#,##0 ₸"
+    label: Портфель с просрочкой > 30 дней, ₸
+  - name: par90_kzt
+    column: par90_kzt
+    type: sum
+    format: "#,##0 ₸"
+    label: Портфель с просрочкой > 90 дней, ₸
+  - name: npl_kzt
+    column: npl_kzt
+    type: sum
+    format: "#,##0 ₸"
+    label: NPL, ₸
+  - name: provisions_kzt
+    column: provision_kzt
+    type: sum
+    format: "#,##0 ₸"
+    label: Провизии, ₸
+  - name: loans
+    column: loan_id
+    type: count
+    format: "#,##0"
+    label: Кредитов, шт.
+  - name: avg_loan_kzt
+    column: principal_kzt
+    type: avg
+    format: "#,##0 ₸"
+    label: Средний остаток кредита, ₸
+  - name: avg_provision_rate
+    column: provision_rate
+    type: avg
+    format: "0.0%"
+    label: Средняя ставка провизий (по числу кредитов, не взвешенная)
+  - name: avg_dpd
+    column: days_past_due
+    type: avg
+    format: "0.0"
+    label: Средняя просрочка, дней

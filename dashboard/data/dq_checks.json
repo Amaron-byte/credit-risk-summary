@@ -1,0 +1,12 @@
+[{"check_name":"raw_rows","description":"Строк в raw.portfolio","value":4060,"severity":"info"}, 
+ {"check_name":"exact_duplicate_rows","description":"Полные дубли строк (удалены в v_loan_clean)","value":60,"severity":"fixed"}, 
+ {"check_name":"conflicting_duplicates","description":"Дубли (дата, кредит) с разными значениями — должно быть 0","value":0,"severity":"error"}, 
+ {"check_name":"missing_fx","description":"Строк в валюте без курса — должно быть 0","value":0,"severity":"error"}, 
+ {"check_name":"fx_not_on_report_date","description":"Строк, где курс взят не на дату среза","value":0,"severity":"warn"}, 
+ {"check_name":"written_off_flag_rows","description":"Строк с written_off = 1 в выгрузке","value":33,"severity":"info"}, 
+ {"check_name":"written_off_reappeared","description":"Кредиты, списанные ранее, но с written_off = 0 на следующем срезе (исключены)","value":23,"severity":"fixed"}, 
+ {"check_name":"written_off_reappeared_kzt","description":"Остаток таких «воскресших» кредитов, ₸","value":5675019588.05,"severity":"fixed"}, 
+ {"check_name":"negative_or_zero_principal","description":"Остаток ≤ 0 — должно быть 0","value":0,"severity":"error"}, 
+ {"check_name":"negative_dpd","description":"Отрицательная просрочка — должно быть 0","value":0,"severity":"error"}, 
+ {"check_name":"past_maturity_in_portfolio","description":"Кредиты в портфеле с истёкшим сроком погашения","value":852,"severity":"warn"}, 
+ {"check_name":"dpd_exactly_30_or_90","description":"Кредиты ровно на границе 30/90 дней (не входят в PAR30/PAR90)","value":6,"severity":"info"}]
